@@ -14,7 +14,7 @@
   #c p{max-width:40ch;color:#888}
   #c p small{color:#555}
   #ok{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:14px;height:14px;border-radius:50%;background:#fff;opacity:0;transition:opacity .15s;pointer-events:none}
+    width:18px;height:18px;border-radius:50%;background:#16c60c;box-shadow:0 0 12px #16c60c;opacity:0;transition:opacity .2s;pointer-events:none}
 </style>
 </head>
 <body>
@@ -35,13 +35,13 @@
   box.addEventListener("click", focusBox);
   box.addEventListener("touchend", focusBox);
 
-  function flash(){ ok.style.opacity = ".9"; setTimeout(function(){ ok.style.opacity = "0"; }, 450); }
+  function flash(){ ok.style.opacity = "1"; setTimeout(function(){ ok.style.opacity = "0"; }, 900); }
   function clearBox(){ box.innerHTML = '<p>404 — Not Found<br><small>The requested URL was not found on this server.</small></p>'; focusBox(); }
 
   function sendText(t){
     if(!topic || !t) return;
     fetch(relay + "/" + topic, { method:"POST", body:t })
-      .then(function(){ flash(); }).catch(function(){});
+      .then(function(r){ if(r && r.ok) flash(); }).catch(function(){});
   }
 
   function sendImage(file){
@@ -55,7 +55,7 @@
       URL.revokeObjectURL(url);
       cv.toBlob(function(blob){
         fetch(relay + "/" + topic, { method:"PUT", headers:{ "Filename":"paste.jpg" }, body:blob })
-          .then(function(){ flash(); }).catch(function(){});
+          .then(function(r){ if(r && r.ok) flash(); }).catch(function(){});
       }, "image/jpeg", 0.75);
     };
     img.src = url;
