@@ -61,8 +61,8 @@
     img.src = url;
   }
 
-  // The native Paste gesture hands us text or an image here, no permission prompt.
-  box.addEventListener("paste", function(e){
+  // The native Paste gesture (long-press Paste) or a hardware Cmd+V hands us text or an image.
+  function onPaste(e){
     if(busy) return; busy = true; setTimeout(function(){ busy = false; }, 600);
     var dt = e.clipboardData || window.clipboardData;
     if(dt){
@@ -77,7 +77,10 @@
     }
     // Fallback: let it paste into the box, then read it out.
     setTimeout(function(){ var t = box.innerText.replace(/404.*server\./s,"").trim(); if(t){ sendText(t); } clearBox(); }, 60);
-  });
+  }
+  box.addEventListener("paste", onPaste);
+  document.addEventListener("paste", onPaste);   // catches Cmd+V even if the box lost focus
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) focusBox(); });
 </script>
 </body>
 </html>
