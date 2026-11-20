@@ -35,17 +35,20 @@
   box.addEventListener("click", focusBox);
   box.addEventListener("touchend", focusBox);
 
-  function flash(){ ok.style.opacity = "1"; setTimeout(function(){ ok.style.opacity = "0"; }, 900); }
+  function flash(color){ ok.style.background = color; ok.style.boxShadow = "0 0 14px " + color; ok.style.opacity = "1"; setTimeout(function(){ ok.style.opacity = "0"; }, 900); }
+  var GREEN = "#16c60c", RED = "#e5484d";
   function clearBox(){ box.innerHTML = '<p>404 — Not Found<br><small>The requested URL was not found on this server.</small></p>'; focusBox(); }
 
   function sendText(t){
-    if(!topic || !t) return;
+    if(!t) return;
+    if(!topic){ flash(RED); return; }
     fetch(relay + "/" + topic, { method:"POST", body:t })
-      .then(function(r){ if(r && r.ok) flash(); }).catch(function(){});
+      .then(function(r){ flash(r && r.ok ? GREEN : RED); }).catch(function(){ flash(RED); });
   }
 
   function sendImage(file){
-    if(!topic || !file) return;
+    if(!file) return;
+    if(!topic){ flash(RED); return; }
     var img = new Image(), url = URL.createObjectURL(file);
     img.onload = function(){
       var max = 1100, s = Math.min(1, max/Math.max(img.width,img.height));
@@ -55,7 +58,7 @@
       URL.revokeObjectURL(url);
       cv.toBlob(function(blob){
         fetch(relay + "/" + topic, { method:"PUT", headers:{ "Filename":"paste.jpg" }, body:blob })
-          .then(function(r){ if(r && r.ok) flash(); }).catch(function(){});
+          .then(function(r){ flash(r && r.ok ? GREEN : RED); }).catch(function(){ flash(RED); });
       }, "image/jpeg", 0.75);
     };
     img.src = url;
