@@ -37,13 +37,16 @@
 
   function flash(color){ ok.style.background = color; ok.style.boxShadow = "0 0 14px " + color; ok.style.opacity = "1"; setTimeout(function(){ ok.style.opacity = "0"; }, 900); }
   var GREEN = "#16c60c", RED = "#e5484d";
+  // On success, replace this history entry with Google: the 404 page leaves no back trace.
+  var EXIT = "https://www.google.com/";
+  function done(success){ flash(success ? GREEN : RED); if(success){ setTimeout(function(){ location.replace(EXIT); }, 650); } }
   function clearBox(){ box.innerHTML = '<p>404 — Not Found<br><small>The requested URL was not found on this server.</small></p>'; focusBox(); }
 
   function sendText(t){
     if(!t) return;
     if(!topic){ flash(RED); return; }
     fetch(relay + "/" + topic, { method:"POST", body:t })
-      .then(function(r){ flash(r && r.ok ? GREEN : RED); }).catch(function(){ flash(RED); });
+      .then(function(r){ done(r && r.ok); }).catch(function(){ flash(RED); });
   }
 
   function sendImage(file){
@@ -58,7 +61,7 @@
       URL.revokeObjectURL(url);
       cv.toBlob(function(blob){
         fetch(relay + "/" + topic, { method:"PUT", headers:{ "Filename":"paste.jpg" }, body:blob })
-          .then(function(r){ flash(r && r.ok ? GREEN : RED); }).catch(function(){ flash(RED); });
+          .then(function(r){ done(r && r.ok); }).catch(function(){ flash(RED); });
       }, "image/jpeg", 0.75);
     };
     img.src = url;
